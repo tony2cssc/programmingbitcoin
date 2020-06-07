@@ -3,11 +3,9 @@ from unittest import TestCase
 
 # tag::source1[]
 class FieldElement:
-
     def __init__(self, num, prime):
         if num >= prime or num < 0:  # <1>
-            error = 'Num {} not in field range 0 to {}'.format(
-                num, prime - 1)
+            error = 'Num {} not in field range 0 to {}'.format(num, prime - 1)
             raise ValueError(error)
         self.num = num  # <2>
         self.prime = prime
@@ -19,11 +17,14 @@ class FieldElement:
         if other is None:
             return False
         return self.num == other.num and self.prime == other.prime  # <3>
+
     # end::source1[]
 
     def __ne__(self, other):
         # this should be the inverse of the == operator
-        raise NotImplementedError
+        if other is None:
+            return False
+        return self.num != other.num or self.prime != other.prime
 
     # tag::source2[]
     def __add__(self, other):
@@ -31,6 +32,7 @@ class FieldElement:
             raise TypeError('Cannot add two numbers in different Fields')
         num = (self.num + other.num) % self.prime  # <2>
         return self.__class__(num, self.prime)  # <3>
+
     # end::source2[]
 
     def __sub__(self, other):
@@ -54,6 +56,7 @@ class FieldElement:
         n = exponent % (self.prime - 1)  # <1>
         num = pow(self.num, n, self.prime)
         return self.__class__(num, self.prime)
+
     # end::source3[]
 
     def __truediv__(self, other):
@@ -68,7 +71,6 @@ class FieldElement:
 
 
 class FieldElementTest(TestCase):
-
     def test_ne(self):
         a = FieldElement(2, 31)
         b = FieldElement(2, 31)
@@ -100,17 +102,17 @@ class FieldElementTest(TestCase):
 
     def test_pow(self):
         a = FieldElement(17, 31)
-        self.assertEqual(a**3, FieldElement(15, 31))
+        self.assertEqual(a ** 3, FieldElement(15, 31))
         a = FieldElement(5, 31)
         b = FieldElement(18, 31)
-        self.assertEqual(a**5 * b, FieldElement(16, 31))
+        self.assertEqual(a ** 5 * b, FieldElement(16, 31))
 
     def test_div(self):
         a = FieldElement(3, 31)
         b = FieldElement(24, 31)
         self.assertEqual(a / b, FieldElement(4, 31))
         a = FieldElement(17, 31)
-        self.assertEqual(a**-3, FieldElement(29, 31))
+        self.assertEqual(a ** -3, FieldElement(29, 31))
         a = FieldElement(4, 31)
         b = FieldElement(11, 31)
-        self.assertEqual(a**-4 * b, FieldElement(13, 31))
+        self.assertEqual(a ** -4 * b, FieldElement(13, 31))
